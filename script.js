@@ -10,7 +10,7 @@ document.addEventListener('DOMContentLoaded', () => {
     };
     let currentThemeIndex = 0;
 
-    function applyTheme(theme) {
+    function applyTheme(theme, isInitialLoad = false) {
         document.body.setAttribute('data-theme', theme);
         themeIcon.innerHTML = icons[theme];
         localStorage.setItem('stellarStatsTheme', theme);
@@ -20,7 +20,9 @@ document.addEventListener('DOMContentLoaded', () => {
                  particlesJS("particles-js",{"particles":{"number":{"value":80,"density":{"enable":true,"value_area":800}},"color":{"value":"#ffffff"},"shape":{"type":"star"},"opacity":{"value":0.5,"random":true,"anim":{"enable":true,"speed":1,"opacity_min":0.1}},"size":{"value":3,"random":true},"move":{"enable":true,"speed":0.5,"direction":"none","random":true,"out_mode":"out"}}});
             }
         }
-        render();
+        if (!isInitialLoad) {
+            render(); 
+        }
     }
 
     themeSwitcher.addEventListener('click', () => {
@@ -255,10 +257,20 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // --- INITIALIZATION (FIXED) ---
     function initializeApp() {
-        loadData();
+        // Step 1: Set the visual theme first without rendering
         const savedTheme = localStorage.getItem('stellarStatsTheme') || 'stars';
-        applyTheme(savedTheme, true); // Pass true to prevent initial double render
-        render(); // Perform the first render after everything is loaded
+        document.body.setAttribute('data-theme', savedTheme);
+        themeIcon.innerHTML = icons[savedTheme];
+        currentThemeIndex = themes.indexOf(savedTheme);
+        if (savedTheme === 'stars' && typeof particlesJS !== 'undefined') {
+            particlesJS("particles-js",{"particles":{"number":{"value":80,"density":{"enable":true,"value_area":800}},"color":{"value":"#ffffff"},"shape":{"type":"star"},"opacity":{"value":0.5,"random":true,"anim":{"enable":true,"speed":1,"opacity_min":0.1}},"size":{"value":3,"random":true},"move":{"enable":true,"speed":0.5,"direction":"none","random":true,"out_mode":"out"}}});
+        }
+        
+        // Step 2: Load data
+        loadData();
+        
+        // Step 3: Now, perform the first full render
+        render();
     }
 
     initializeApp();
